@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Ant-Version: Apache Ant 1.8.4
+Created-By: 1.7.0_71-mockbuild_2014_10_15_17_02-b00 (Oracle Corporatio
+ n)
+Git-Release-Hash: f450ccc521ed587d69020b02e3a2fb0b2d66841c
+Git-Release-Tag: 
+Built-By: marten@dmfs.org
+Implementation-Version: -2
+
