@@ -17,7 +17,6 @@
 
 package org.dmfs.android.syncstate;
 
-import java.io.Closeable;
 import java.io.IOException;
 
 import org.dmfs.xmlobjects.ElementDescriptor;
@@ -29,7 +28,7 @@ import org.dmfs.xmlobjects.XmlContext;
  * 
  * @author Marten Gajda <marten@dmfs.org>
  */
-public interface SyncState extends SyncStateReader, Closeable
+public interface SyncState extends SyncStateReader
 {
 	/**
 	 * Load the current sync state of the account and authority into this instance, using the default {@link XmlContext}.

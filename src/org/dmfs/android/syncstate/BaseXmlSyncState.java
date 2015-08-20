@@ -22,6 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
@@ -42,8 +43,11 @@ import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import android.accounts.Account;
-import android.content.ContentProviderClient;
+import android.content.ContentProviderOperation;
+import android.content.ContentProviderResult;
 import android.content.ContentResolver;
+import android.content.OperationApplicationException;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.RemoteException;
 import android.provider.SyncStateContract;
@@ -51,13 +55,14 @@ import android.provider.SyncStateContract;
 
 /**
  * The base implementation of a {@link SyncState} that stores all values in an XML object.
- * <p />
- * Make sure that you always call {@link #close()} when you're done with a sync state.
  * 
  * @author Marten Gajda <marten@dmfs.org>
  */
 public abstract class BaseXmlSyncState implements SyncState
 {
+	private final static String[] PROJECTION = { SyncStateContract.Columns.DATA };
+	private final static String SELECTION = SyncStateContract.Columns.ACCOUNT_NAME + "=? and " + SyncStateContract.Columns.ACCOUNT_TYPE + "=?";
+
 	/**
 	 * Empty {@link XmlPath}.
 	 */
@@ -70,9 +75,9 @@ public abstract class BaseXmlSyncState implements SyncState
 		QualifiedName.get("http://dmfs.org/ns/syncstate", "syncstate"), ElementMapObjectBuilder.INSTANCE);
 
 	/**
-	 * The {@link ContentProviderClient} we use to read and store the values.
+	 * A {@link ContentResolver}.
 	 */
-	private final ContentProviderClient mProvider;
+	private final ContentResolver mResolver;
 
 	/**
 	 * The {@link Account} of this sync state.
@@ -102,7 +107,7 @@ public abstract class BaseXmlSyncState implements SyncState
 	 */
 	public BaseXmlSyncState(ContentResolver resolver, Account account, Uri uri)
 	{
-		mProvider = resolver.acquireContentProviderClient(uri);
+		mResolver = resolver;
 		mAccount = account;
 		mUri = uri;
 	}
@@ -120,7 +125,14 @@ public abstract class BaseXmlSyncState implements SyncState
 	{
 		try
 		{
-			byte[] data = SyncStateContract.Helpers.get(mProvider, mUri, mAccount);
+			Cursor c = mResolver.query(mUri, PROJECTION, SELECTION, new String[] { mAccount.name, mAccount.type }, null);
+			if (c == null || !c.moveToFirst())
+			{
+				// there is no syncstate yet.
+				return;
+			}
+
+			byte[] data = c.getBlob(0);
 
 			if (data == null)
 			{
@@ -144,7 +156,7 @@ public abstract class BaseXmlSyncState implements SyncState
 			mObjectPull.setContext(xmlContext);
 			mObjectPull.pull(SYNCSTATE_DESCRIPTOR, mStateMap, EMPTY_PATH);
 		}
-		catch (XmlPullParserException | RemoteException | XmlObjectPullParserException e)
+		catch (XmlPullParserException | XmlObjectPullParserException e)
 		{
 			// the constructor IOException(String, Throwable) is not available on Android 2.2 :-(
 			throw (IOException) (new IOException("can't read syncstate").initCause(e));
@@ -211,20 +223,15 @@ public abstract class BaseXmlSyncState implements SyncState
 			serializer.serialize(context, SYNCSTATE_DESCRIPTOR, mStateMap);
 			out.flush();
 			out.close();
-			SyncStateContract.Helpers.set(mProvider, mUri, mAccount, byteArrayOutputStream.toByteArray());
+			ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>(1);
+			operations.add(SyncStateContract.Helpers.newSetOperation(mUri, mAccount, byteArrayOutputStream.toByteArray()));
+
+			ContentProviderResult[] result = mResolver.applyBatch(mUri.getAuthority(), operations);
 		}
-		catch (SerializerException | RemoteException e)
+		catch (SerializerException | RemoteException | OperationApplicationException e)
 		{
 			// the constructor IOException(String, Throwable) is not available on Android 2.2 :-(
 			throw (IOException) (new IOException("can't persist syncstate").initCause(e));
 		}
 	}
-
-
-	@Override
-	public void close()
-	{
-		mProvider.release();
-	}
-
 }

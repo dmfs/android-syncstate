@@ -81,9 +81,6 @@ public class CalendarSyncStateTest extends AndroidTestCase
 		assertEquals("some string value", s.get(ELEMENT1));
 		assertEquals("some other string value", s.get(ELEMENT2));
 
-		// close it
-		s.close();
-
 		// create a new CalendarSyncState
 		SyncState s2 = new CalendarSyncState(getContext().getContentResolver(), testAccount)
 		{
@@ -99,8 +96,6 @@ public class CalendarSyncStateTest extends AndroidTestCase
 		// make sure that the values are still returned correctly
 		assertEquals("some string value", s2.get(ELEMENT1));
 		assertEquals("some other string value", s2.get(ELEMENT2));
-
-		s2.close();
 	}
 
 
@@ -132,9 +127,6 @@ public class CalendarSyncStateTest extends AndroidTestCase
 		assertEquals("some string value", s.get(CONTEXT_ELEMENT1));
 		assertEquals("some other string value", s.get(CONTEXT_ELEMENT2));
 
-		// close it
-		s.close();
-
 		// create a new CalendarSyncState
 		SyncState s2 = new CalendarSyncState(getContext().getContentResolver(), testAccount)
 		{
@@ -150,7 +142,5 @@ public class CalendarSyncStateTest extends AndroidTestCase
 		// make sure that the values are still returned correctly
 		assertEquals("some string value", s2.get(CONTEXT_ELEMENT1));
 		assertEquals("some other string value", s2.get(CONTEXT_ELEMENT2));
-
-		s2.close();
 	}
 }
