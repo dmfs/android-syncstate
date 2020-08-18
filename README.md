@@ -7,14 +7,10 @@ Android provides a simple mechanism to sync applications to store additional met
 
 This library provides a simple way to read and store structured sync state data.
 
-## Requirements
-
-* Android SDK Level 8 or higher
-* [xmlobjects](https://github.com/dmfs/xmlobjects)
 
 ## License
 
-Copyright (c) Marten Gajda 2015
+Copyright (c) Marten Gajda 2020
 
 
 Licensed under the Apache License, Version 2.0 (the "License");

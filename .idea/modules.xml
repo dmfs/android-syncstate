@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/android-syncstate/android-syncstate.iml" filepath="$PROJECT_DIR$/android-syncstate/android-syncstate.iml" />
+      <module fileurl="file://$PROJECT_DIR$/androidsyncstate.iml" filepath="$PROJECT_DIR$/androidsyncstate.iml" />
+    </modules>
+  </component>
+</project>
